@@ -21,22 +21,17 @@ declare function stone {
     local dv is impact_dv().
     local dv_time is 0.
 
-    print "Impact seconds: " + round(imp, 2) + "s".
-    print "Impact dv: " + round(dv, 2) + "m/s".
-    print "Burn time: " + round(dv_time, 2) + "s".
-
-    local loop_count is 0.
-
     declare local function _done {
-        declare parameter dv.
-        // Stop when the impact would be slow, or we're super close to the ground, or we've started moving up again.
-        return (dv < 2) or (alt:radar < 2).
+        return ship:status = "landed".
     }
 
     // want to ensure that the impact time is half of the time to burn to counter the impact velocity.
-    local descent_throt_pid is pidloop(0.1, 0, 0, 0.0, 1.0).
+    local descent_throt_pid is pidloop(1.5, 0, 0).
+    set descent_throt_pid:setpoint to 0.0.
+    local fear_factor is 1.
+    local comparison is 0.
 
-    until _done(dv) {
+    until _done() {
         set imp to impact_time() - time:seconds.
 
         if imp < 20 {
@@ -45,47 +40,26 @@ declare function stone {
 
         set dv to impact_dv().
         set dv_time to seconds_for_dv(dv).
+        set descent_throt_pid:setpoint to dv_time.
+
+        // Be less aggressive as we get close to the surface.
+        if alt:radar < 20 {
+            set fear_factor to 0.1.
+        } else if alt:radar < 100 {
+            set fear_factor to linear(alt:radar, 20, 0.1, 100, 1.0).
+        } else {
+            set fear_factor to 1.0.
+        }
+
         if dv_time = false {
             // do nothing
         } else {
             // high throttle if low, low throttle if high
-            local comparison is (imp / 2 - dv_time).
-            print "Comparison: " + round(comparison, 2) + "s".
-
-            // set throt to throt + descent_throt_pid:update(time:seconds, comparison).
-            if imp < 0.5 * dv_time {
-                set throt to 1.0.
-            } else if imp >= 4 * dv_time {
-                set throt to 0.0.
-            } else {
-                // set throt to throt +
-                set throt to multilinear(
-                    imp,
-                    list(
-                        list(0, 1.0),
-                        list(2 * dv_time, 1.0),
-                        list(4 * dv_time, 0.0),
-                        list(5 * dv_time, 0.0)
-                    )
-                ).
-            }
-
-            if loop_count = 0 {
-                print "Impact seconds: " + round(imp, 2) + "s".
-                print "Impact dv: " + round(dv, 2) + "m/s".
-                print "Burn time: " + round(dv_time, 2) + "s".
-                print "Throt: " + round(throt, 2).
-                //local alt_my_guess is geoaltitudeat(ship, time:seconds).
-                //local alt_real is alt:radar.
-                //print "Terrain altitude error: " + round(alt_my_guess - alt_real, 2) + "m".
-                //print "Guess: " + round(alt_my_guess, 2) + "m".
-                //print "Real:  " + round(alt_real, 2) + "m".
-            }
+            set comparison to (imp * fear_factor - dv_time).
+            set throt to descent_throt_pid:update(time:seconds, comparison).
         }
-
-        // set loop_count to mod(loop_count + 1, 10).
     }
-    wait until _done(dv).
+
     set throt to 0.0.
 
     lock_all().
@@ -118,7 +92,7 @@ declare function impact_time {
 
     local terrainheight is alt:radar.
     if terrainheight < 1000 {
-        print "Terrain height: " + terrainheight + "m".
+        // Just emulate as if the surface were flat.
         local down_vel is -vdot(ship:velocity:surface, UP:vector).
         // s = ut + 0.5*at^2
         // at^2 + 2ut - 2s = 0
@@ -130,7 +104,6 @@ declare function impact_time {
         if abs(accel) < 0.001 {
             // s = ut
             if down_vel < 0.1 {
-                print "Impact time inf - not moving downward".
                 return 10 ^ 12.  // infinity. ish.
             } else {
                 return time:seconds + (terrainheight / down_vel).
