@@ -30,14 +30,17 @@ declare function circularise {
     local targetvelocity is orbital_velocity_at_altitude(target_point, target_point, target_point).
     local expected_velocity is orbital_velocity_at_altitude(target_point).
 
-
-
     local dv is targetvelocity - expected_velocity.
 
     local retro is (dv < 0).
     set dv to abs(dv).
 
     print_info("Required delta-v: " + round(dv, 2) + "m/s").
+    if retro {
+        print_info("Will burn retrograde").
+    } else {
+        print_info("Will burn prograde").
+    }
 
     local initial_dv is dv_in_stage().
 
@@ -109,11 +112,18 @@ declare function circularise {
     declare local function _success {
         parameter target_point, retro.
 
+        local check is false.
         if retro {
-            return ship:apoapsis < target_point.
+            set check to ship:apoapsis < target_point.
         } else {
-            return ship:periapsis > target_point.
+            set check to ship:periapsis > target_point.
         }
+
+        // Invert the success check if the orbit is non-captive.
+        if (ship:apoapsis < 0) and (ship:periapsis > ship:apoapsis) {
+            set check to not check.
+        }
+        return check.
     }
 
     until _success(target_point, retro) {
