@@ -1,11 +1,14 @@
 runpath("0:/utils/string.ks").
 
+// Given a directory, list the files. If abspath is true, absolute paths are
+// returned, otherwise, they are paths relative to the given directory.
 declare function list_paths {
     declare parameter dirpath.
     declare abspath is true.
 
+    // Change to the given path, but remember the current directory so we can switch
+    // back.
     local start_path is path().
-
     cd(dirpath).
 
     local found is list().
@@ -24,6 +27,7 @@ declare function list_paths {
     return paths.
 }
 
+// Given a directory and a list of paths, append the directory to the start of the paths, handling "/" in the join.
 declare function append_dir {
     declare parameter dirpath, paths_list.
 
@@ -39,6 +43,8 @@ declare function append_dir {
     return new_paths.
 }
 
+// Given a path, find the last part of it. Eg, "my/path" becomes "path" and
+// "my/directory/subdirectory/" becomes "subdirectory".
 declare function basename {
     declare parameter path.
 

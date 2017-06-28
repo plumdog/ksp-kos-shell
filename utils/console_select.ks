@@ -1,5 +1,13 @@
 runpath("0:/utils/string.ks").
 
+// Given a lexicon of options, print them to the terminal and request the user
+// pick one. If `repeat` is true, then will keep prompting until a valid
+// response is given, otherwise will just ask once.
+
+// Always offers an "exit" option, in which case this will return false. Also
+// returns false if no answer is given.
+
+// If a valid option is selected, returns the key from the given lexicon.
 declare function select {
     // A lexicon of options
     declare parameter options, repeat is true.

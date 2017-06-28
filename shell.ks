@@ -11,6 +11,8 @@ global throt is 0.0.
 global steer is ship:facing.
 SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
 
+// Reset the globals and reset the associated locks, just in case one of the
+// called functions forgets to reset something.
 declare local function reset {
     sas off.
     SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
@@ -21,6 +23,9 @@ declare local function reset {
     lock_all().
 }
 
+// Wrappers are the entry points for the range of provided functions in the
+// shell. Any directory containing a "wrapper.ks" file will be included in the
+// options given and selecting that option will run the wrapper.ks file.
 declare local function find_wrappers {
     local wrappers is lexicon().
     local trial_path is "".

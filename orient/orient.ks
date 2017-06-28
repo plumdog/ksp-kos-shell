@@ -1,5 +1,8 @@
 runpath("0:/utils/locks.ks").
 
+// Orient to the given direction, and doesn't return until the ship is pointing
+// in the right direction to a good accuracy. If the given time limit is
+// reached, returns false.
 declare function safe_orient {
     declare parameter dir is ship:prograde, seconds_limit is 100, accuracy is 1.
     set dir to R(dir:pitch, dir:yaw, ship:facing:roll).

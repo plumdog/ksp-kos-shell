@@ -1,13 +1,15 @@
 runpath("0:/utils/string.ks").
 
-declare function print_info {
-    declare parameter text.
-    print " - " + text.
-}
+// Some standardisation for printing progress within a shell function.
 
 declare function print_section {
     declare parameter text.
     print "# " + text + " #".
+}
+
+declare function print_info {
+    declare parameter text.
+    print " - " + text.
 }
 
 declare function print_alert {

@@ -2,11 +2,12 @@
 
 runpath("0:/utils/linear.ks").
 runpath("0:/utils/print.ks").
-// runpath("0:/utils/engine.ks").
-// runpath("0:/utils/orbit.ks").
 runpath("0:/circularise/circularise.ks").
 
 
+// Launch into a holding orbit. Note that this currently assumes that the
+// current body is kerbin, and handles atmosphere and ascent profile
+// accordingly.
 declare function runlaunch {
 
     local targetorbit is 80000.
@@ -117,7 +118,8 @@ declare function runlaunch {
     SAS ON.
 }
 
-
+// Return the requested pitch and throttle given the current velocity, altitude
+// and ascent style.
 declare local function idealascent {
     declare parameter myvel, myalt, style.
 
