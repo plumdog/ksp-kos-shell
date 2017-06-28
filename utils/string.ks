@@ -1,3 +1,5 @@
+// Given a string, split into words and capitalise the first character of each.
+// Note than any other upper-case characters are preserved.
 declare function titlecase {
     declare parameter text.
     if not text {
@@ -13,6 +15,7 @@ declare function titlecase {
     return cap_words:join(" ").
 }
 
+// From the given text, remove all occurences of endchar from the end.
 declare function trimend {
     declare parameter text, endchar.
 
@@ -30,9 +33,13 @@ declare function trimend {
     return trimend(text:substring(0, text:length - 1), endchar).
 }
 
+// Repeat the given text the given number of times.
+// string_repeat("a", 3) => "aaa"
+// string_repeat("ab", 2) => "abab"
 declare function string_repeat {
     declare parameter text, times.
 
+    // There's probably a way nicer way of doing this.
     if times = 1 { return text. }
     if times = 2 { return text + text. }
     set half to floor(times / 2).

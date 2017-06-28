@@ -4,6 +4,8 @@ runpath("0:/utils/print.ks").
 runpath("0:/utils/locks.ks").
 
 declare function run_node {
+    // Fairly crude node execution script. Just waits until half-burn-time before
+    // the node, and burn until half-burn-time after the node.
     print_section("Running maneuver for node").
 
     if not hasnode {

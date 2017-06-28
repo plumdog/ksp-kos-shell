@@ -1,3 +1,9 @@
+// Calculate the number of seconds the current ship will have to burn for to
+// provide the given amount of delta-v.
+//
+// Note that this will return false if there is insufficient delta-v *in the
+// current stage* and does not currently attempt to calculate delta-v across
+// multiple stages. This should probably be improved in future.
 declare function seconds_for_dv {
     declare parameter required_dv.
 
@@ -18,6 +24,7 @@ declare function seconds_for_dv {
     return fuel_mass_required * (best_engine:isp * 9.82) / best_engine:availablethrust.
 }
 
+// Mass of fuel that would be burnt if the current stage was run until flameout.
 declare function stage_fuel_mass {
     // Assumes engine uses lf+ox in the ratio of 9 lf to 11 ox
 
@@ -39,6 +46,8 @@ declare function stage_fuel_mass {
     return (ox * ox_density) + (lf * lf_density).
 }
 
+// Find the most efficient engine in the current stage. We use this for the
+// calculations.
 declare function stage_best_engine {
     set best_active_isp to 0.
     set best_active_engine to false.
@@ -52,6 +61,7 @@ declare function stage_best_engine {
     return best_active_engine.
 }
 
+// Total delta-v in the current stage.
 declare function dv_in_stage {
     set fuel_mass to stage_fuel_mass().
     set best_engine to stage_best_engine().

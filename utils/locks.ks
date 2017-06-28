@@ -1,5 +1,6 @@
 runpath("0:/utils/errors.ks").
 
+// Some functions to try to keep the globals inline and locked as expected.
 declare local function _globals_defined_ok {
     return (defined throt and defined steer).
 }

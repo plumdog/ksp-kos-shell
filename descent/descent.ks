@@ -3,6 +3,8 @@ runpath("0:/utils/engine.ks").
 runpath("0:/utils/locks.ks").
 runpath("0:/utils/linear.ks").
 
+// Halt the orbit, then drop straight down to the surface, slowing to a nice,
+// soft landing.
 declare function stone {
 
     if ship:orbit:periapsis > 0 {
@@ -65,11 +67,15 @@ declare function stone {
     lock_all().
 }
 
+// For the given vessel and absolute time, find the predicted altitude above the
+// current body's 0-altitude.
 declare function altitudeat {
     declare parameter ves, at_time.
     return (positionat(ves, at_time) - ves:body:position):mag - ves:body:radius.
 }
 
+// For the given vessel and absolute time, find the predicted altitude above
+// terrain.
 declare function geoaltitudeat {
     declare parameter ves, at_time.
     local actual_position is positionat(ves, at_time) - ves:body:position.
@@ -77,12 +83,14 @@ declare function geoaltitudeat {
     return actual_position:mag - height - ves:body:radius.
 }
 
+// Find the predicted impact speed.
 declare function impact_dv {
     declare parameter ves is ship.
     local impact_t is impact_time(ves).
     return velocityat(ves, impact_t):surface:mag.
 }
 
+// Find the predicted absolute time of impact.
 declare function impact_time {
     declare parameter ves is ship.
 

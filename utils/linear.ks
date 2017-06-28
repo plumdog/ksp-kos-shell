@@ -1,5 +1,6 @@
 set NULL to "__NULL__".
 
+//
 declare function linear {
     declare parameter x, x1, y1, x2, y2.
 
@@ -9,6 +10,9 @@ declare function linear {
     return m * x + c.
 }
 
+// Given a value, and a list of pairs, interpolate between the given pairs,
+// which are assumed to be (x0, y0), (x1, y1), etc. Returns false if the given
+// value falls outside the x values of the pairs.
 declare function multilinear {
     // The x values of the given points must always increase.
     declare parameter x, points.

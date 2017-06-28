@@ -8,6 +8,7 @@ runpath("0:/utils/locks.ks").
 runpath("0:/orient/orient.ks").
 
 
+// Circularise at either apoapsis or periapsis.
 declare function circularise {
     declare parameter is_ap is true.
 
