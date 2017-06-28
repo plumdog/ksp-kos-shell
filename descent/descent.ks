@@ -55,6 +55,10 @@ declare function stone {
 
         if dv_time = false {
             // do nothing
+        } else if _down_velocity() < 1 {
+            // TODO: try to make this a bit less spluttery for low thrust ships
+            // Always be moving downwards.
+            set throt to 0.0.
         } else {
             // high throttle if low, low throttle if high
             set comparison to (imp * fear_factor - dv_time).
@@ -90,6 +94,11 @@ declare function impact_dv {
     return velocityat(ves, impact_t):surface:mag.
 }
 
+declare local function _down_velocity {
+    declare parameter ves is ship.
+    return -vdot(ves:velocity:surface, UP:vector).
+}
+
 // Find the predicted absolute time of impact.
 declare function impact_time {
     declare parameter ves is ship.
@@ -99,9 +108,11 @@ declare function impact_time {
     }
 
     local terrainheight is alt:radar.
-    if terrainheight < 1000 {
-        // Just emulate as if the surface were flat.
-        local down_vel is -vdot(ship:velocity:surface, UP:vector).
+    // print "Angle to straight downwards: " + round(abs(vang(ves:srfretrograde:vector, ves:UP:vector)), 2) + " degrees".
+    if (terrainheight < 1000) or (abs(vang(ves:srfretrograde:vector, ves:UP:vector)) < 10) {
+        // Just emulate as if the surface were flat, provided we're close to it, or
+        // we're just moving roughly straight downwards.
+        local down_vel is _down_velocity(ves).
         // s = ut + 0.5*at^2
         // at^2 + 2ut - 2s = 0
         // t = (-2u +/- sqrt(4u^2 + 4*a*2s)) / 2a
@@ -126,11 +137,16 @@ declare function impact_time {
 
     local now is time:seconds.
     local eta_pe is eta:periapsis.
-    local eta_ap is eta:apoapsis.
+    local eta_ap is 0.0.
+    if (ves:apoapsis < 0) and (ves:apoapsis < ves:periapsis) {
+        set eta_ap to 10 ^ 9. // infinity-ish
+    } else {
+        set eta_ap to eta:apoapsis.
+    }
 
     local maxits is 20.
     local abovetime is now.
-    if eta:apoapsis < eta:periapsis {
+    if eta_ap < eta_pe {
         set abovetime to now + eta_ap.
     }
     local belowtime is now + eta_pe.

@@ -24,7 +24,6 @@ declare local function reset {
 
     lock_all().
 }
-reset().
 
 // Wrappers are the entry points for the range of provided functions in the
 // shell. Any directory containing a "wrapper.ks" file will be included in the
