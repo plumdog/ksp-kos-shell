@@ -1,3 +1,4 @@
+CORE:PART:GETMODULE("kOSProcessor"):DOEVENT("Open Terminal").
 PRINT "Booting shell".
 
 runpath("0:/utils/locks.ks").
@@ -5,6 +6,7 @@ runpath("0:/utils/path.ks").
 runpath("0:/utils/string.ks").
 runpath("0:/utils/print.ks").
 runpath("0:/utils/console_select.ks").
+
 
 // Some actual real life globals.
 global throt is 0.0.
@@ -22,6 +24,7 @@ declare local function reset {
 
     lock_all().
 }
+reset().
 
 // Wrappers are the entry points for the range of provided functions in the
 // shell. Any directory containing a "wrapper.ks" file will be included in the
